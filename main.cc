@@ -15,6 +15,7 @@ int main() {
     awesomejob.handler = &DoSomethingAwesome;
     awesomejob.title = "DoSomethingAwesome";
     awesomejob.description = "This job does something awesome.";
+    jobs.push_back(awesomejob);
 
     try {
         gaia::Serve(jobs);
