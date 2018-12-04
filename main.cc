@@ -19,7 +19,7 @@ int main() {
     try {
         gaia::Serve(jobs);
     } catch (string e) {
-        std:cerr << "Error: " << e << std::endl;
+        std::cerr << "Error: " << e << std::endl;
     }
 }
 
