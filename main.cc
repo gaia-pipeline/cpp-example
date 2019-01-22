@@ -13,11 +13,6 @@ using gaia::job;
 void CreateUser(list<argument> args) throw(string) {
     cerr << "CreateUser has been started!" << endl;
 
-    // Print arguments
-    for (auto const& arg : args) {
-        cerr << "Key: " << arg.key << "; Value: " << arg.value << ";" << endl;
-    }
-    
     // lets sleep to simulate that we do something
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
@@ -26,11 +21,6 @@ void CreateUser(list<argument> args) throw(string) {
 
 void MigrateDB(list<argument> args) throw(string) {
     cerr << "MigrateDB has been started!" << endl;
-
-    // Print arguments
-    for (auto const& arg : args) {
-        cerr << "Key: " << arg.key << "; Value: " << arg.value << ";" << endl;
-    }
 
     // lets sleep to simulate that we do something
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
