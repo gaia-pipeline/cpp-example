@@ -5,18 +5,12 @@
 #include "plugin.pb.h"
 #include "plugin.grpc.pb.h"
 
-#include <functional>
 #include <grpcpp/impl/codegen/async_stream.h>
 #include <grpcpp/impl/codegen/async_unary_call.h>
 #include <grpcpp/impl/codegen/channel_interface.h>
 #include <grpcpp/impl/codegen/client_unary_call.h>
-#include <grpcpp/impl/codegen/client_callback.h>
-#include <grpcpp/impl/codegen/message_allocator.h>
-#include <grpcpp/impl/codegen/method_handler.h>
+#include <grpcpp/impl/codegen/method_handler_impl.h>
 #include <grpcpp/impl/codegen/rpc_service_method.h>
-#include <grpcpp/impl/codegen/server_callback.h>
-#include <grpcpp/impl/codegen/server_callback_handlers.h>
-#include <grpcpp/impl/codegen/server_context.h>
 #include <grpcpp/impl/codegen/service_type.h>
 #include <grpcpp/impl/codegen/sync_stream.h>
 namespace proto {
@@ -38,47 +32,27 @@ Plugin::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel)
   {}
 
 ::grpc::ClientReader< ::proto::Job>* Plugin::Stub::GetJobsRaw(::grpc::ClientContext* context, const ::proto::Empty& request) {
-  return ::grpc_impl::internal::ClientReaderFactory< ::proto::Job>::Create(channel_.get(), rpcmethod_GetJobs_, context, request);
-}
-
-void Plugin::Stub::experimental_async::GetJobs(::grpc::ClientContext* context, ::proto::Empty* request, ::grpc::experimental::ClientReadReactor< ::proto::Job>* reactor) {
-  ::grpc_impl::internal::ClientCallbackReaderFactory< ::proto::Job>::Create(stub_->channel_.get(), stub_->rpcmethod_GetJobs_, context, request, reactor);
+  return ::grpc::internal::ClientReaderFactory< ::proto::Job>::Create(channel_.get(), rpcmethod_GetJobs_, context, request);
 }
 
 ::grpc::ClientAsyncReader< ::proto::Job>* Plugin::Stub::AsyncGetJobsRaw(::grpc::ClientContext* context, const ::proto::Empty& request, ::grpc::CompletionQueue* cq, void* tag) {
-  return ::grpc_impl::internal::ClientAsyncReaderFactory< ::proto::Job>::Create(channel_.get(), cq, rpcmethod_GetJobs_, context, request, true, tag);
+  return ::grpc::internal::ClientAsyncReaderFactory< ::proto::Job>::Create(channel_.get(), cq, rpcmethod_GetJobs_, context, request, true, tag);
 }
 
 ::grpc::ClientAsyncReader< ::proto::Job>* Plugin::Stub::PrepareAsyncGetJobsRaw(::grpc::ClientContext* context, const ::proto::Empty& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc_impl::internal::ClientAsyncReaderFactory< ::proto::Job>::Create(channel_.get(), cq, rpcmethod_GetJobs_, context, request, false, nullptr);
+  return ::grpc::internal::ClientAsyncReaderFactory< ::proto::Job>::Create(channel_.get(), cq, rpcmethod_GetJobs_, context, request, false, nullptr);
 }
 
 ::grpc::Status Plugin::Stub::ExecuteJob(::grpc::ClientContext* context, const ::proto::Job& request, ::proto::JobResult* response) {
   return ::grpc::internal::BlockingUnaryCall(channel_.get(), rpcmethod_ExecuteJob_, context, request, response);
 }
 
-void Plugin::Stub::experimental_async::ExecuteJob(::grpc::ClientContext* context, const ::proto::Job* request, ::proto::JobResult* response, std::function<void(::grpc::Status)> f) {
-  ::grpc_impl::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_ExecuteJob_, context, request, response, std::move(f));
-}
-
-void Plugin::Stub::experimental_async::ExecuteJob(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::proto::JobResult* response, std::function<void(::grpc::Status)> f) {
-  ::grpc_impl::internal::CallbackUnaryCall(stub_->channel_.get(), stub_->rpcmethod_ExecuteJob_, context, request, response, std::move(f));
-}
-
-void Plugin::Stub::experimental_async::ExecuteJob(::grpc::ClientContext* context, const ::proto::Job* request, ::proto::JobResult* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
-  ::grpc_impl::internal::ClientCallbackUnaryFactory::Create(stub_->channel_.get(), stub_->rpcmethod_ExecuteJob_, context, request, response, reactor);
-}
-
-void Plugin::Stub::experimental_async::ExecuteJob(::grpc::ClientContext* context, const ::grpc::ByteBuffer* request, ::proto::JobResult* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
-  ::grpc_impl::internal::ClientCallbackUnaryFactory::Create(stub_->channel_.get(), stub_->rpcmethod_ExecuteJob_, context, request, response, reactor);
-}
-
 ::grpc::ClientAsyncResponseReader< ::proto::JobResult>* Plugin::Stub::AsyncExecuteJobRaw(::grpc::ClientContext* context, const ::proto::Job& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc_impl::internal::ClientAsyncResponseReaderFactory< ::proto::JobResult>::Create(channel_.get(), cq, rpcmethod_ExecuteJob_, context, request, true);
+  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::proto::JobResult>::Create(channel_.get(), cq, rpcmethod_ExecuteJob_, context, request, true);
 }
 
 ::grpc::ClientAsyncResponseReader< ::proto::JobResult>* Plugin::Stub::PrepareAsyncExecuteJobRaw(::grpc::ClientContext* context, const ::proto::Job& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc_impl::internal::ClientAsyncResponseReaderFactory< ::proto::JobResult>::Create(channel_.get(), cq, rpcmethod_ExecuteJob_, context, request, false);
+  return ::grpc::internal::ClientAsyncResponseReaderFactory< ::proto::JobResult>::Create(channel_.get(), cq, rpcmethod_ExecuteJob_, context, request, false);
 }
 
 Plugin::Service::Service() {
@@ -86,22 +60,12 @@ Plugin::Service::Service() {
       Plugin_method_names[0],
       ::grpc::internal::RpcMethod::SERVER_STREAMING,
       new ::grpc::internal::ServerStreamingHandler< Plugin::Service, ::proto::Empty, ::proto::Job>(
-          [](Plugin::Service* service,
-             ::grpc_impl::ServerContext* ctx,
-             const ::proto::Empty* req,
-             ::grpc_impl::ServerWriter<::proto::Job>* writer) {
-               return service->GetJobs(ctx, req, writer);
-             }, this)));
+          std::mem_fn(&Plugin::Service::GetJobs), this)));
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       Plugin_method_names[1],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
       new ::grpc::internal::RpcMethodHandler< Plugin::Service, ::proto::Job, ::proto::JobResult>(
-          [](Plugin::Service* service,
-             ::grpc_impl::ServerContext* ctx,
-             const ::proto::Job* req,
-             ::proto::JobResult* resp) {
-               return service->ExecuteJob(ctx, req, resp);
-             }, this)));
+          std::mem_fn(&Plugin::Service::ExecuteJob), this)));
 }
 
 Plugin::Service::~Service() {
